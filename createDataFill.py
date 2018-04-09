@@ -15,7 +15,7 @@ import random
 
 # 400 messages 
 
-readFriends = open("../SQL/insertFriends.sql","r")
+readFriends = open("SQL/insertFriends.sql","r")
 f = open("insertMessages.txt", "w+")
 
 # Insert into friends values('JAMES1997','JOHN1995','2014-11-6','JOHN1995 has accepted your friend request.');
@@ -53,22 +53,13 @@ f = open("insertMessages.txt", "w+")
 	# lastlogin = str(random.randint(2016,2018)) + '-' + str(random.randint(1,12)) + '-' + str(random.randint(1,28)) + ' ' + str(random.randint(0,23)) + ":" + str(random.randint(0,60)) + ":" + str(random.randint(0,60)) 
 	# f.write("Insert into messages values('" + msgID + "','" + fromUserID + "','" + toUserID + "','" + toGroupID +  "','" + message + "','" + lastlogin + "');" '\n')
 
-# f.write("-- Inserting group messages" '\n') # add a comment in insertMessages.sql
+f.write("-- Inserting group messages" '\n') # add a comment in insertMessages.sql
 
-readGroups = open("../SQL/insertGroups.sql","r")
-
-# helper function: read random line from file
-def random_line(afile):
-	line = next(afile)
-	for num, aline in enumerate(afile):
-		if random.randrange(num + 2):
-			continue
-		line = aline
-	return line
+readGroups = open("SQL/insertGroups.sql","r")
 
 # Create group members
-insertMembers = open("insertGroupMembers.txt", "w")
-lines = open("../SQL/insertFriends.sql").read().splitlines()
+insertMembers = open("Extras/insertGroupMembers.txt", "w")
+lines = open("SQL/insertFriends.sql").read().splitlines()
 
 # Add members for each of the 25 groups
 for i in range(25):
@@ -84,7 +75,6 @@ for i in range(25):
 
 	for i in range(limit - random.randint(0, limit)):
 		# get a random user ID
-		
 		line = random.choice(lines)
 		linecut = line.split("'", 1)[1]
 		userID = linecut.split("'", 1)[0]
@@ -93,21 +83,33 @@ for i in range(25):
 		else:
 			insertMembers.write("Insert into groupMembership values('" + gID + "','" + userID + "','" + "Member" + "');" '\n')
 
-# Insert 100 group messages. Average 4 message per group.
-# for i in range(25):
-# 	line = readGroups.readline()
-# 	linecut = line.split("'", 1)[1]
-# 	toGroupID = linecut.split("'", 1)[0]
-# 	lc2 = linecut.spli("'", 1)[1]
-# 	lc3 = lc2.split("'", 1)[1]
-# 	fromUserID = lc3.split("'", 1)[0]
+# Insert group messages
+readGroupMembers = open("SQL/insertGroupMembers.sql", "r")
+GroupMembersLines = open("SQL/insertGroupMembers.sql").read().splitlines()
 
-# 	msgID = fromUserID + toGroupID + str(random.randint(0, 1000))
+# Create 200 group messages: average 8 message per group.
+for i in range(200):
+	line = random.choice(GroupMembersLines)
+	# l = readGroupMembers.readline()
+	linecut = line.split("'", 1)[1]
+	toGroupID = linecut.split("'", 1)[0]
+	lc2 = linecut.split("'", 1)[1]
+	lc3 = lc2.split("'", 1)[1]
+	fromUserID = lc3.split("'", 1)[0]
 
+	msgID = fromUserID + toGroupID + str(random.randint(0, 1000))
 
-# 	f.write("Insert into message values('" + )
+	toUserID = "NULL"
+
+	message = "This is a group message " + str(i) + "."
+
+	lastlogin = str(random.randint(2016,2018)) + '-' + str(random.randint(1,12)) + '-' + str(random.randint(1,28)) + ' ' + str(random.randint(0,23)) + ":" + str(random.randint(0,60)) + ":" + str(random.randint(0,60))
+	f.write("Insert into messages values('" + msgID + "','" + fromUserID + "','" + toUserID + "','" + toGroupID +  "','" + message + "','" + lastlogin + "');" '\n')
+
 
 readFriends.close()
+readGroups.close()
+readGroupMembers.close()
 f.close()
 
 
