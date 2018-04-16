@@ -103,7 +103,7 @@ for i in range(200):
 
 	message = "This is a group message " + str(i) + "."
 
-	lastlogin = str(random.randint(2016,2018)) + '-' + str(random.randint(1,12)) + '-' + str(random.randint(1,28)) + ' ' + str(random.randint(0,23)) + ":" + str(random.randint(0,60)) + ":" + str(random.randint(0,60))
+	lastlogin = str(random.randint(2016,2018)) + '-' + str(random.randint(1,12)) + '-' + str(random.randint(1,28)) + ' ' + str(random.randint(0,23)) + ":" + str(random.randint(0,59)) + ":" + str(random.randint(0,59))
 	f.write("Insert into messages values('" + msgID + "','" + fromUserID + "','" + toUserID + "','" + toGroupID +  "','" + message + "','" + lastlogin + "');" '\n')
 
 

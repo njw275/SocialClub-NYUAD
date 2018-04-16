@@ -24,7 +24,7 @@ Insert into profile values('MARIA1996','MARIA','LEWIS','MARIA.LEWIS@nyu.edu','AI
 Insert into profile values('KENNETH1996','KENNETH','LEE','KENNETH.LEE@nyu.edu','HTENNEK6991','1996-6-4','2018-7-13 20:21:5');
 Insert into profile values('SUSAN1993','SUSAN','WALKER','SUSAN.WALKER@nyu.edu','NASUS3991','1993-3-23','2018-2-12 18:28:33');
 Insert into profile values('STEVEN1996','STEVEN','HALL','STEVEN.HALL@nyu.edu','NEVETS6991','1996-7-26','2018-1-22 10:32:30');
-Insert into profile values('EDWARD1992','EDWARD','ALLEN','EDWARD.ALLEN@nyu.edu','DRAWDE2991','1992-10-1','2016-12-26 2:60:25');
+Insert into profile values('EDWARD1992','EDWARD','ALLEN','EDWARD.ALLEN@nyu.edu','DRAWDE2991','1992-10-1','2016-12-26 2:59:25');
 Insert into profile values('MARGARET1994','MARGARET','YOUNG','MARGARET.YOUNG@nyu.edu','TERAGRAM4991','1994-2-1','2017-6-19 12:34:4');
 Insert into profile values('BRIAN1992','BRIAN','HERNANDEZ','BRIAN.HERNANDEZ@nyu.edu','NAIRB2991','1992-7-21','2018-4-5 21:57:18');
 Insert into profile values('RONALD1995','RONALD','KING','RONALD.KING@nyu.edu','DLANOR5991','1995-5-20','2018-4-14 13:21:50');
@@ -35,7 +35,7 @@ Insert into profile values('KEVIN1997','KEVIN','SCOTT','KEVIN.SCOTT@nyu.edu','NI
 Insert into profile values('NANCY1995','NANCY','GREEN','NANCY.GREEN@nyu.edu','YCNAN5991','1995-1-5','2018-9-4 18:39:41');
 Insert into profile values('KAREN1996','KAREN','ADAMS','KAREN.ADAMS@nyu.edu','NERAK6991','1996-12-16','2017-10-5 12:0:42');
 Insert into profile values('BETTY1996','BETTY','BAKER','BETTY.BAKER@nyu.edu','YTTEB6991','1996-11-28','2018-3-17 4:37:28');
-Insert into profile values('HELEN1992','HELEN','GONZALEZ','HELEN.GONZALEZ@nyu.edu','NELEH2991','1992-11-19','2018-11-27 19:60:24');
+Insert into profile values('HELEN1992','HELEN','GONZALEZ','HELEN.GONZALEZ@nyu.edu','NELEH2991','1992-11-19','2018-11-27 19:59:24');
 Insert into profile values('JASON1998','JASON','NELSON','JASON.NELSON@nyu.edu','NOSAJ8991','1998-11-7','2016-5-8 13:35:48');
 Insert into profile values('MATTHEW1996','MATTHEW','CARTER','MATTHEW.CARTER@nyu.edu','WEHTTAM6991','1996-8-17','2016-12-21 3:53:56');
 Insert into profile values('GARY1994','GARY','MITCHELL','GARY.MITCHELL@nyu.edu','YRAG4991','1994-9-25','2018-5-3 8:2:56');
@@ -53,7 +53,7 @@ Insert into profile values('ERIC1996','ERIC','SANCHEZ','ERIC.SANCHEZ@nyu.edu','C
 Insert into profile values('STEPHEN1993','STEPHEN','MORRIS','STEPHEN.MORRIS@nyu.edu','NEHPETS3991','1993-7-5','2018-7-12 15:30:5');
 Insert into profile values('ANDREW1998','ANDREW','ROGERS','ANDREW.ROGERS@nyu.edu','WERDNA8991','1998-5-11','2018-12-14 14:6:16');
 Insert into profile values('SHARON1993','SHARON','REED','SHARON.REED@nyu.edu','NORAHS3991','1993-5-26','2017-10-18 14:31:18');
-Insert into profile values('MICHELLE1993','MICHELLE','COOK','MICHELLE.COOK@nyu.edu','ELLEHCIM3991','1993-3-28','2018-10-10 6:60:48');
+Insert into profile values('MICHELLE1993','MICHELLE','COOK','MICHELLE.COOK@nyu.edu','ELLEHCIM3991','1993-3-28','2018-10-10 6:59:48');
 Insert into profile values('LAURA1998','LAURA','MORGAN','LAURA.MORGAN@nyu.edu','ARUAL8991','1998-11-14','2016-10-9 10:37:16');
 Insert into profile values('SARAH1997','SARAH','BELL','SARAH.BELL@nyu.edu','HARAS7991','1997-3-15','2017-1-16 20:37:37');
 Insert into profile values('KIMBERLY1997','KIMBERLY','MURPHY','KIMBERLY.MURPHY@nyu.edu','YLREBMIK7991','1997-1-5','2016-2-18 9:38:18');

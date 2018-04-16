@@ -56,7 +56,7 @@ create table pendingGroupMembers (
 );
 
 create table messages (
-	msgID       varchar(20),
+	msgID       varchar(40),
 	fromUserID  varchar(20),
 	toUserID    varchar(20) default NULL,
 	toGroupID   varchar(20) default NULL,
