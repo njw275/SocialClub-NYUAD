@@ -1,5 +1,6 @@
 import psycopg2
 import time
+import random
 
 
 
@@ -133,10 +134,22 @@ def f(query):
                 #     print("Request not sent. Error has occurred, please try again.")
 
 
+    elif query[0] == 'createGroup': # provide a name, description, and membership limit
+        if len(query) != 4:
+            print("Please enter a group name, description, and membership limit to create a group.")
+        else:
+            name = query[1]
+            description = query[2]
+            maxUsers = query[3]
+            gID = name.split(' ')[0] + random.randint(2000, 2018)
+            insert_query = "insert into groups values ('" + gID + "','" + name + "','" + description + "','" + maxUsers + "');"
+            cur.execute(insert_query)
+            conn.commit()
 
 
     else:
         print('Please use a proper command')
+
 
 try:
     # conn = psycopg2.connect("dbname='Nick_Peter_Project2' user='postgres' ' password='MyPassword'");
