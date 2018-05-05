@@ -205,6 +205,95 @@ def f(query):
                         counter = counter + 1
 
 
+    elif query[0] == 'displayFriends': #browse user's friends AND their friends
+        if len(query) != 1:
+            print("Please enter only the command name \"displayFriends\" to see your friends")
+        else:
+            if currentUser is None or currentUser == '':
+                print("Please login in first using the \"login\" command")
+            else:
+                search_query = "select * from friends where LOWER(userid1)=LOWER('" + currentUser + "') or LOWER(userid2)=LOWER('" + currentUser + "');"
+                cur.execute(search_query)
+                rows = cur.fetchall()
+                print("~~~~~Friends and Friends of Friends~~~~~\n") #display friends names and their userIDs
+                for row in rows:
+                    if row[0] == currentUser:
+                        search_query = "select * from profile where LOWER(userid)=LOWER('" + row[1] + "');"
+                        cur.execute(search_query)
+                        profileRows = cur.fetchall()
+                        for newr in profileRows:
+                            print("userID: " + newr[0] + " Name: " + newr[1] + " " + newr[2])
+
+                            #now print the friends of this particular friend
+                            search_query = "select * from friends where LOWER(userid1)=LOWER('" + newr[0] + "') or LOWER(userid2)=LOWER('" + newr[0] + "');"
+                            cur.execute(search_query)
+                            friendsOfFriend = cur.fetchall()
+                            for rowFriends in friendsOfFriend:
+                                if rowFriends[0] == newr[0]:
+                                    search_query = "select * from profile where LOWER(userid)=LOWER('" + rowFriends[1] + "');"
+                                    cur.execute(search_query)
+                                    profileRows = cur.fetchall()
+                                    for rowfromFriendsFriendProfile in profileRows:
+                                        # print(rowfromFriendsFriendProfile)
+                                        print("\tuserID: " + rowfromFriendsFriendProfile[0] + " Name: " + rowfromFriendsFriendProfile[1] + " " + rowfromFriendsFriendProfile[2])
+                                    # print(row[1])
+                                else:
+                                    search_query = "select * from profile where LOWER(userid)=LOWER('" + rowFriends[0] + "');"
+                                    cur.execute(search_query)
+                                    profileRows = cur.fetchall()
+                                    for rowfromFriendsFriendProfile in profileRows:
+                                        # print(rowfromFriendsFriendProfile)
+                                        print("\tuserID: " + rowfromFriendsFriendProfile[0] + " Name: " + rowfromFriendsFriendProfile[1] + " " + rowfromFriendsFriendProfile[2])
+
+
+
+                    else:
+                        search_query = "select * from profile where LOWER(userid)=LOWER('" + row[0] + "');"
+                        cur.execute(search_query)
+                        profileRows = cur.fetchall()
+                        for newr in profileRows:
+                            print("userID: " + newr[0] + " Name: " + newr[1] + " " + newr[2])
+
+                            #now print the friends of this particular friend
+                            search_query = "select * from friends where LOWER(userid1)=LOWER('" + newr[0] + "') or LOWER(userid2)=LOWER('" + newr[0] + "');"
+                            cur.execute(search_query)
+                            friendsOfFriend = cur.fetchall()
+                            # print()
+                            for rowFriends in friendsOfFriend:
+                                # print("row 0: " + rowFriends[0] + " newr[0]: " + newr[0])
+                                if rowFriends[0] == newr[0]:
+                                    search_query = "select * from profile where LOWER(userid)=LOWER('" + rowFriends[1] + "');"
+                                    cur.execute(search_query)
+                                    profileRows = cur.fetchall()
+                                    for rowfromFriendsFriendProfile in profileRows:
+                                        # print(rowfromFriendsFriendProfile)
+                                        print("\tuserID: " + rowfromFriendsFriendProfile[0] + " Name: " + rowfromFriendsFriendProfile[1] + " " + rowfromFriendsFriendProfile[2])
+                                    # print(rowFriends[1])
+                                else:
+                                    search_query = "select * from profile where LOWER(userid)=LOWER('" + rowFriends[0] + "');"
+                                    cur.execute(search_query)
+                                    profileRows = cur.fetchall()
+                                    for rowFromFriendsFriendProfile in profileRows:
+                                        # print(rowFromFriendsFriendProfile)
+                                        print("\tuserID: " + rowFromFriendsFriendProfile[0] + " Name: " + rowFromFriendsFriendProfile[1] + " " + rowFromFriendsFriendProfile[2])
+                                # print(rowFriends[1])
+                while(1):
+                    print("\n")
+                    #retrieve entire profile by entering their userID or exit browsing with 0
+                    displayThisProfile = raw_input("Type the userID of the profile you wish to view\n[Simply enter 0 to go back to the main menu]:")
+                    if displayThisProfile == '0':
+                        break;
+                    else:
+                        try:
+                            search_query = "select * from profile where LOWER(userid)=LOWER('" + displayThisProfile + "');"
+                            cur.execute(search_query)
+                            profileRows = cur.fetchall()
+                            print("\n")
+                            for newr in profileRows:
+                                print(newr)
+                        except Exception as e:
+                            print("That friend's profile could not be found. Please try again.")
+
 
     elif query[0] == 'createGroup': # provide a name, description, and membership limit
         if len(query) != 4:
@@ -263,6 +352,10 @@ try:
 
     while(1):
 
+
+
+        #show friend's profile when selected in formatted manner
+        #then either retrieve another or return
 
         command = raw_input("socnyuad> ")
         commandSplit = command.split(" ")
