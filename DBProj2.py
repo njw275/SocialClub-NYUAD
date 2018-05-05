@@ -282,6 +282,7 @@ def f(query):
                                         # print(rowFromFriendsFriendProfile)
                                         print("\tuserID: " + rowFromFriendsFriendProfile[0] + " Name: " + rowFromFriendsFriendProfile[1] + " " + rowFromFriendsFriendProfile[2])
                                 # print(rowFriends[1])
+                #retrieve another or return
                 while(1):
                     print("\n")
                     #retrieve entire profile by entering their userID or exit browsing with 0
@@ -289,14 +290,17 @@ def f(query):
                     if displayThisProfile == '0':
                         break;
                     else:
+                        #show friend's profile when selected in formatted manner
                         try:
+                            # print(displayThisProfile)
                             search_query = "select * from profile where LOWER(userid)=LOWER('" + displayThisProfile + "');"
                             cur.execute(search_query)
                             profileRows = cur.fetchall()
                             print("\n")
                             for newr in profileRows:
-                                print(newr)
+                                print("Name: " + newr[1] + " " + newr[2] + "\nuserID: " + newr[0] + "\nemail: " + newr[3] + "\nDOB: " + str(newr[5]) + "\nLast login: " + str(newr[6]))
                         except Exception as e:
+                            print(e)
                             print("That friend's profile could not be found. Please try again.")
 
 
@@ -343,6 +347,29 @@ def f(query):
             except Exception as e:
                 print("Request not sent. Error has occurred, please try again.")
                 print(e)
+    elif query[0] == 'logout': #logout: terminate the application and update the last login time of logged in user
+        if len(query) != 1:
+            print("Please enter only the command name \"logout\" to logout and close the program")
+        else:
+            if currentUser is None or currentUser == '':
+                print("Please login in first using the \"login\" command")
+            else:
+                #here update last login of logged in user
+                newLoggedTime = time.strftime('%Y-%m-%d %H:%M:%S')
+                update_query = "update profile set lastlogin='" + newLoggedTime + "' where LOWER(userid)=LOWER('" + currentUser + "')";
+                cur.execute(update_query)
+                conn.commit()
+
+                global runProgram
+                runProgram = False
+    elif query[0] == 'topUsers': #topUsers k x
+        if len(query) != 3:
+            print("Please enter the number of users (k) and the amount of days to check (x):\ntopUsers k x")
+        else:
+            if currentUser is None or currentUser == '':
+                print("Please login in first using the \"login\" command")
+            else:
+                print("topUsers")
 
     else:
         print('Please use a proper command')
@@ -355,6 +382,7 @@ try:
     print("Success")
     cur = conn.cursor()
     currentUser = ''
+    runProgram = True
 
     while(1):
 
