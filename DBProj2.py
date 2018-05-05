@@ -6,6 +6,7 @@ import random
 
 def f(query):
     global currentUser
+
     if query[0] == 'createUser':     #first, last name, email address, password, and date of birth,
         if len(query) != 6:
             print("Please enter a First Name, Last Name, email, password, and DOB to create a user")
@@ -22,6 +23,8 @@ def f(query):
             insert_query = "insert into profile values ('" + userid + "','" + first_name + "','" + last_name + "','" + email + "','" + password + "','" + dob + "','" + lastlogin + "');"
             cur.execute(insert_query)
             conn.commit()
+
+
     elif query[0] == 'login': #userID and password login else make an error message
         if len(query) != 3:
             print("Please enter your userID and password")
@@ -41,6 +44,8 @@ def f(query):
             # for row in rows:
             #     print(row)
             # return
+
+
     elif query[0] == 'searchForUser': #searchForUser userid fname lname email for substring
         if len(query) != 2:
             print("Please enter the substring you want to search")
@@ -61,6 +66,8 @@ def f(query):
             # for row in rows:
             #     print(row)
             # return
+
+
     elif query[0] == 'initiateFriendship': #initiateFriendship userID
         if len(query) != 2:
             print("Please enter the userID of the friend you would like to add")
@@ -69,7 +76,6 @@ def f(query):
                 print("Please login in first using the \"login\" command")
             else:
                 userid = query[1]
-
 
                 search_query = "select fname, lname from profile where LOWER(userid) LIKE LOWER('%" + userid + "%');"
                 cur.execute(search_query)
@@ -90,7 +96,6 @@ def f(query):
                 except Exception as e:
                     print("Request not sent. Error has occurred, please try again.")
                     print(e)
-
 
 
     elif query[0] == 'confirmFriendship':
@@ -147,7 +152,7 @@ def f(query):
             conn.commit()
     elif query[0] == 'initiateAddingGroup': # provide a user ID and a group name
         if len(query) != 3:
-            print("Please enter your user ID and the group you wishes to join")
+            print("Please enter your user ID and the group you wish to join")
         else:
             userid = query[1]
             gID = query[2]
@@ -182,6 +187,7 @@ def f(query):
         print('Please use a proper command')
 
 
+# connect to the database and enter while loop
 try:
     # conn = psycopg2.connect("dbname='Nick_Peter_Project2' user='postgres' ' password='MyPassword'");
     conn = psycopg2.connect(dbname="Nick_Peter_Project2", user="njw275", password="MyPassword", host="m-dclap-p302-csd.abudhabi.nyu.edu")
@@ -191,11 +197,10 @@ try:
 
     while(1):
 
-
         command = input("socnyuad> ")
         commandSplit = command.split(" ")
         
-        # to exit/quit the program
+        # exit/quit the program
         if commandSplit[0] == 'exit' or commandSplit[0] == 'quit':
             break
         
