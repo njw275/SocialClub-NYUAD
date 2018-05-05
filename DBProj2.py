@@ -77,7 +77,7 @@ def f(query):
                 for row in rows:
                     print(" FULL NAME: " + row[0] + " " + row[1])
 
-                message = input("What would you like to say in your request?\n[If you want a default message simply press enter to continue]\n: ")
+                message = raw_input("What would you like to say in your request?\n[If you want a default message simply press enter to continue]\n: ")
                 if message is None or message == '':
                     message = 'NULL'
 
@@ -94,44 +94,70 @@ def f(query):
 
 
     elif query[0] == 'confirmFriendship':
-        # formatted number list of all friend and group requests along with the messages
-        # prompt to have # of requests confirmed or denied and any not selected are declined and removed from pendingfriends pendinggroupmemebers
-        # give option to confirm or deny all
-        # after this move pendingfriends to friends and pendinggroupmemebrs to groupmembers
         if len(query) != 1:
             print("Please enter only the command name \"confirmFriendship\" to see your pending friend requests")
         else:
             if currentUser is None or currentUser == '':
                 print("Please login in first using the \"login\" command")
             else:
+                # formatted number list of all friend and group requests along with the messages
                 print("PENDING FRIEND REQUESTS:\n")
                 search_query = "select userid1, message from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "');"
                 cur.execute(search_query)
                 rows = cur.fetchall()
-                x = 1
+                x = 0
                 for row in rows:
                     print(str(x) + ". \n")
                     print(" REQUEST FROM: " + row[0] + "\n  MESSAGE:" + row[1] + "\n")
                     x = x + 1
 
-                confirmNumbers = input("What would you like to say in your request?\n[If you want a default message simply press enter to continue]\n: ")
+                # prompt to have # of requests confirmed or denied and any not selected are declined and removed from pendingfriends pendinggroupmemebers
+                confirmNumbers = raw_input("Type the numbers of the requests you wish to accept\n[Press Enter to Deny All or type \"all\" to accept all]: ")
                 confirmNumbers = confirmNumbers.split(' ')
-                print(str(len(confirmNumbers)) + " is how many you're confirming")
+                # give option to confirm or deny all
                 if len(confirmNumbers) == 1 and confirmNumbers[0] == '':
                     print("Deny all")
-                for x in confirmNumbers:
-                    print(x + " confirmed")
-                # if message is None or message == '':
-                #     message = 'NULL'
-                #
-                # insert_query = "insert into pendingfriends values ('" + currentUser + "','" + userid + "','" + message + "');"
-                # # print(insert_query)
-                # try:
-                #     cur.execute(insert_query)
-                #     conn.commit()
-                #     print("Request sent successfully!")
-                # except:
-                #     print("Request not sent. Error has occurred, please try again.")
+                    counter = 0
+                    for tuple in range(x):
+                        print(x)
+                        # print(str(counter) + " confirmed and the info for that is: " + rows[counter][0] + " " + rows[counter][1])
+                        delete_query = "delete from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "') and LOWER(userid1)=LOWER('" + rows[counter][0] + "');"
+                        cur.execute(delete_query)
+                        conn.commit()
+                        counter = counter + 1
+                elif len(confirmNumbers) == 1 and confirmNumbers[0] == 'all':
+                    print("Accept all")
+                    counter = 0
+                    for tuple in range(x):
+                        print(x)
+                        friendshipdate = time.strftime('%Y-%m-%d')
+                        message = currentUser + " has accepted your friend request."
+                        insert_query = "insert into friends values ('" + rows[counter][0] + "','" + currentUser + "','" + friendshipdate + "','" + message + "');"
+                        delete_query = "delete from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "') and LOWER(userid1)=LOWER('" + rows[counter][0] + "');"
+                        cur.execute(insert_query)
+                        cur.execute(delete_query)
+                        conn.commit()
+                        counter = counter + 1
+                else:
+                    # after this move pendingfriends to friends and pendinggroupmemebrs to groupmembers
+                    # friends: userid1 userid2 friendshipdate message (userid2 is accepting request from userid1)
+                    # delete from pendingFriends where userid1= and userid2=
+                    counter = 0
+                    print(confirmNumbers)
+                    for tuple in range(x):
+                        print(x)
+                        if str(counter) in confirmNumbers:
+                            friendshipdate = time.strftime('%Y-%m-%d')
+                            message = currentUser + " has accepted your friend request."
+                            print(str(x) + " confirmed and the info for that is: " + rows[counter][0] + " " + rows[counter][1])
+                            insert_query = "insert into friends values ('" + rows[counter][0] + "','" + currentUser + "','" + friendshipdate + "','" + message + "');"
+                            cur.execute(insert_query)
+                        delete_query = "delete from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "') and LOWER(userid1)=LOWER('" + rows[counter][0] + "');"
+                        cur.execute(delete_query)
+                        conn.commit()
+                        counter = counter + 1
+                    # for x in rows:
+
 
 
     elif query[0] == 'createGroup': # provide a name, description, and membership limit
@@ -157,14 +183,14 @@ def f(query):
             rows = cur.fetchall()
             for row in rows:
                 print(" FULL NAME: " + row[0] + " " + row[1])
-            
+
             search_query = "select name from groups where LOWER(gID) LIKE LOWER('%" + gID + "%');"
             cur.execute(search_query)
             rows = cur.fetchall()
             for row in rows:
                 print("GROUP NAME: " + row[0])
 
-            message = input("What would you like to say in your request?\n[Press enter to continue with default message]\n: ")
+            message = raw_input("What would you like to say in your request?\n[Press enter to continue with default message]\n: ")
             if message is None or message == '':
                 message = 'NULL'
 
@@ -192,13 +218,13 @@ try:
     while(1):
 
 
-        command = input("socnyuad> ")
+        command = raw_input("socnyuad> ")
         commandSplit = command.split(" ")
-        
+
         # to exit/quit the program
         if commandSplit[0] == 'exit' or commandSplit[0] == 'quit':
             break
-        
+
         f(commandSplit)
 
 
