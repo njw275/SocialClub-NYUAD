@@ -101,7 +101,7 @@ def f(query):
                 print("Please login in first using the \"login\" command")
             else:
                 # formatted number list of all friend and group requests along with the messages
-                print("PENDING FRIEND REQUESTS:\n")
+                print("PENDING REQUESTS:\n")
                 search_query = "select userid1, message from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "');"
                 cur.execute(search_query)
                 rows = cur.fetchall()
@@ -111,6 +111,15 @@ def f(query):
                     print(" REQUEST FROM: " + row[0] + "\n  MESSAGE:" + row[1] + "\n")
                     x = x + 1
 
+                #This is for group membership requests
+                search_query = "select p.userid, p.gID, p.message from pendingGroupMembers p, groupMembership g where LOWER(g.userid)=LOWER('" + currentUser + "') and g.role = 'Manager' and g.gID = p.gID;"
+                cur.execute(search_query)
+                rowsOfGroup = cur.fetchall()
+                for row in rowsOfGroup:
+                    print(str(x) + ". \n")
+                    print(" REQUEST FROM: " + row[0] + " TO JOIN: " + row[1] + "\n  MESSAGE:" + row[2] + "\n")
+                    x = x + 1
+
                 # prompt to have # of requests confirmed or denied and any not selected are declined and removed from pendingfriends pendinggroupmemebers
                 confirmNumbers = raw_input("Type the numbers of the requests you wish to accept\n[Press Enter to Deny All or type \"all\" to accept all]: ")
                 confirmNumbers = confirmNumbers.split(' ')
@@ -118,26 +127,49 @@ def f(query):
                 if len(confirmNumbers) == 1 and confirmNumbers[0] == '':
                     print("Deny all")
                     counter = 0
+                    counterGroup = 0
                     for tuple in range(x):
                         print(x)
                         # print(str(counter) + " confirmed and the info for that is: " + rows[counter][0] + " " + rows[counter][1])
-                        delete_query = "delete from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "') and LOWER(userid1)=LOWER('" + rows[counter][0] + "');"
+                        if counter < len(rows):
+                            delete_query = "delete from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "') and LOWER(userid1)=LOWER('" + rows[counter][0] + "');"
+                            counter = counter + 1
+                        else:
+                            delete_query = "delete from pendingGroupMembers where LOWER(userid)=LOWER('" + rowsOfGroup[counterGroup][0] + "');"
+                            counterGroup = counterGroup + 1
                         cur.execute(delete_query)
                         conn.commit()
-                        counter = counter + 1
+
+
+
+
+
                 elif len(confirmNumbers) == 1 and confirmNumbers[0] == 'all':
                     print("Accept all")
                     counter = 0
+                    counterGroup = 0
                     for tuple in range(x):
                         print(x)
                         friendshipdate = time.strftime('%Y-%m-%d')
                         message = currentUser + " has accepted your friend request."
-                        insert_query = "insert into friends values ('" + rows[counter][0] + "','" + currentUser + "','" + friendshipdate + "','" + message + "');"
-                        delete_query = "delete from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "') and LOWER(userid1)=LOWER('" + rows[counter][0] + "');"
+
+                        if counter < len(rows):
+                            insert_query = "insert into friends values ('" + rows[counter][0] + "','" + currentUser + "','" + friendshipdate + "','" + message + "');"
+                            delete_query = "delete from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "') and LOWER(userid1)=LOWER('" + rows[counter][0] + "');"
+                            counter = counter + 1
+                        else:
+                            # gID userID role
+                            insert_query = "insert into groupMembership values ('" + rowsOfGroup[counterGroup][1] + "','" + rowsOfGroup[counterGroup][0] + "','Member');"
+                            delete_query = "delete from pendingGroupMembers where LOWER(userid)=LOWER('" + rowsOfGroup[counterGroup][0] + "') and LOWER(gID)=LOWER('" + rowsOfGroup[counterGroup][1] + "');"
+                            counterGroup = counterGroup + 1
                         cur.execute(insert_query)
                         cur.execute(delete_query)
                         conn.commit()
-                        counter = counter + 1
+
+
+
+
+
                 else:
                     # after this move pendingfriends to friends and pendinggroupmemebrs to groupmembers
                     # friends: userid1 userid2 friendshipdate message (userid2 is accepting request from userid1)
@@ -149,14 +181,28 @@ def f(query):
                         if str(counter) in confirmNumbers:
                             friendshipdate = time.strftime('%Y-%m-%d')
                             message = currentUser + " has accepted your friend request."
-                            print(str(x) + " confirmed and the info for that is: " + rows[counter][0] + " " + rows[counter][1])
-                            insert_query = "insert into friends values ('" + rows[counter][0] + "','" + currentUser + "','" + friendshipdate + "','" + message + "');"
+                            # print(str(x) + " confirmed and the info for that is: " + rows[counter][0] + " " + rows[counter][1])
+                            if counter < len(rows):
+                                insert_query = "insert into friends values ('" + rows[counter][0] + "','" + currentUser + "','" + friendshipdate + "','" + message + "');"
+                                # counter = counter + 1
+                            else:
+                                # gID userID role
+                                insert_query = "insert into groupMembership values ('" + rowsOfGroup[counter-len(rows)][1] + "','" + rowsOfGroup[counter-len(rows)][0] + "','Member');"
+                                # counter = counter + 1
+
                             cur.execute(insert_query)
-                        delete_query = "delete from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "') and LOWER(userid1)=LOWER('" + rows[counter][0] + "');"
+
+
+                        if counter < len(rows):
+                            delete_query = "delete from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "') and LOWER(userid1)=LOWER('" + rows[counter][0] + "');"
+                            # counter = counter + 1
+                        else:
+                            delete_query = "delete from pendingGroupMembers where LOWER(userid)=LOWER('" + rowsOfGroup[counter-len(rows)][0] + "') and LOWER(gID)=LOWER('" + rowsOfGroup[counter-len(rows)][1] + "');"
+                            # counterGroup = counterGroup + 1
+
                         cur.execute(delete_query)
                         conn.commit()
                         counter = counter + 1
-                    # for x in rows:
 
 
 
