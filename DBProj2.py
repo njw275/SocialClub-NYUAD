@@ -77,7 +77,7 @@ def f(query):
                 for row in rows:
                     print(" FULL NAME: " + row[0] + " " + row[1])
 
-                message = raw_input("What would you like to say in your request?\n[If you want a default message simply press enter to continue]\n: ")
+                message = input("What would you like to say in your request?\n[If you want a default message simply press enter to continue]\n: ")
                 if message is None or message == '':
                     message = 'NULL'
 
@@ -87,7 +87,7 @@ def f(query):
                     cur.execute(insert_query)
                     conn.commit()
                     print("Request sent successfully!")
-                except Exception,e:
+                except Exception as e:
                     print("Request not sent. Error has occurred, please try again.")
                     print(e)
 
@@ -114,7 +114,7 @@ def f(query):
                     print(" REQUEST FROM: " + row[0] + "\n  MESSAGE:" + row[1] + "\n")
                     x = x + 1
 
-                confirmNumbers = raw_input("What would you like to say in your request?\n[If you want a default message simply press enter to continue]\n: ")
+                confirmNumbers = input("What would you like to say in your request?\n[If you want a default message simply press enter to continue]\n: ")
                 confirmNumbers = confirmNumbers.split(' ')
                 print(str(len(confirmNumbers)) + " is how many you're confirming")
                 if len(confirmNumbers) == 1 and confirmNumbers[0] == '':
@@ -145,7 +145,38 @@ def f(query):
             insert_query = "insert into groups values ('" + gID + "','" + name + "','" + description + "','" + maxUsers + "');"
             cur.execute(insert_query)
             conn.commit()
+    elif query[0] == 'initiateAddingGroup': # provide a user ID and a group name
+        if len(query) != 3:
+            print("Please enter your user ID and the group you wishes to join")
+        else:
+            userid = query[1]
+            gID = query[2]
 
+            search_query = "select fname, lname from profile where LOWER(userid) LIKE LOWER('%" + userid + "%');"
+            cur.execute(search_query)
+            rows = cur.fetchall()
+            for row in rows:
+                print(" FULL NAME: " + row[0] + " " + row[1])
+            
+            search_query = "select name from groups where LOWER(gID) LIKE LOWER('%" + gID + "%');"
+            cur.execute(search_query)
+            rows = cur.fetchall()
+            for row in rows:
+                print("GROUP NAME: " + row[0])
+
+            message = input("What would you like to say in your request?\n[Press enter to continue with default message]\n: ")
+            if message is None or message == '':
+                message = 'NULL'
+
+            insert_query = "insert into pendingGroupMembers values ('" + gID + "','" + userid + "','" + message + "');"
+            # print(insert_query)
+            try:
+                cur.execute(insert_query)
+                conn.commit()
+                print("Request sent successfully!")
+            except Exception as e:
+                print("Request not sent. Error has occurred, please try again.")
+                print(e)
 
     else:
         print('Please use a proper command')
@@ -161,12 +192,15 @@ try:
     while(1):
 
 
-        command = raw_input("socnyuad> ")
-        commandSplit = command.split(" ");
-        # print(commandSplit)
+        command = input("socnyuad> ")
+        commandSplit = command.split(" ")
+        
+        # to exit/quit the program
+        if commandSplit[0] == 'exit' or commandSplit[0] == 'quit':
+            break
+        
         f(commandSplit)
-        # print(query)
-        #
 
-except Exception, e:
+
+except Exception as e:
     print(e)
