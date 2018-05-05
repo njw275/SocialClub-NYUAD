@@ -99,44 +99,205 @@ def f(query):
 
 
     elif query[0] == 'confirmFriendship':
-        # formatted number list of all friend and group requests along with the messages
-        # prompt to have # of requests confirmed or denied and any not selected are declined and removed from pendingfriends pendinggroupmemebers
-        # give option to confirm or deny all
-        # after this move pendingfriends to friends and pendinggroupmemebrs to groupmembers
         if len(query) != 1:
             print("Please enter only the command name \"confirmFriendship\" to see your pending friend requests")
         else:
             if currentUser is None or currentUser == '':
                 print("Please login in first using the \"login\" command")
             else:
-                print("PENDING FRIEND REQUESTS:\n")
+                # formatted number list of all friend and group requests along with the messages
+                print("PENDING REQUESTS:\n")
                 search_query = "select userid1, message from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "');"
                 cur.execute(search_query)
                 rows = cur.fetchall()
-                x = 1
+                x = 0
                 for row in rows:
                     print(str(x) + ". \n")
                     print(" REQUEST FROM: " + row[0] + "\n  MESSAGE:" + row[1] + "\n")
                     x = x + 1
 
-                confirmNumbers = input("What would you like to say in your request?\n[If you want a default message simply press enter to continue]\n: ")
+                #This is for group membership requests
+                search_query = "select p.userid, p.gID, p.message from pendingGroupMembers p, groupMembership g where LOWER(g.userid)=LOWER('" + currentUser + "') and g.role = 'Manager' and g.gID = p.gID;"
+                cur.execute(search_query)
+                rowsOfGroup = cur.fetchall()
+                for row in rowsOfGroup:
+                    print(str(x) + ". \n")
+                    print(" REQUEST FROM: " + row[0] + " TO JOIN: " + row[1] + "\n  MESSAGE:" + row[2] + "\n")
+                    x = x + 1
+
+                # prompt to have # of requests confirmed or denied and any not selected are declined and removed from pendingfriends pendinggroupmemebers
+                confirmNumbers = input("Type the numbers of the requests you wish to accept\n[Press Enter to Deny All or type \"all\" to accept all]: ")
                 confirmNumbers = confirmNumbers.split(' ')
-                print(str(len(confirmNumbers)) + " is how many you're confirming")
+                # give option to confirm or deny all
                 if len(confirmNumbers) == 1 and confirmNumbers[0] == '':
                     print("Deny all")
-                for x in confirmNumbers:
-                    print(x + " confirmed")
-                # if message is None or message == '':
-                #     message = 'NULL'
-                #
-                # insert_query = "insert into pendingfriends values ('" + currentUser + "','" + userid + "','" + message + "');"
-                # # print(insert_query)
-                # try:
-                #     cur.execute(insert_query)
-                #     conn.commit()
-                #     print("Request sent successfully!")
-                # except:
-                #     print("Request not sent. Error has occurred, please try again.")
+                    counter = 0
+                    counterGroup = 0
+                    for tuple in range(x):
+                        print(x)
+                        # print(str(counter) + " confirmed and the info for that is: " + rows[counter][0] + " " + rows[counter][1])
+                        if counter < len(rows):
+                            delete_query = "delete from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "') and LOWER(userid1)=LOWER('" + rows[counter][0] + "');"
+                            counter = counter + 1
+                        else:
+                            delete_query = "delete from pendingGroupMembers where LOWER(userid)=LOWER('" + rowsOfGroup[counterGroup][0] + "');"
+                            counterGroup = counterGroup + 1
+                        cur.execute(delete_query)
+                        conn.commit()
+
+
+
+
+
+                elif len(confirmNumbers) == 1 and confirmNumbers[0] == 'all':
+                    print("Accept all")
+                    counter = 0
+                    counterGroup = 0
+                    for tuple in range(x):
+                        print(x)
+                        friendshipdate = time.strftime('%Y-%m-%d')
+                        message = currentUser + " has accepted your friend request."
+
+                        if counter < len(rows):
+                            insert_query = "insert into friends values ('" + rows[counter][0] + "','" + currentUser + "','" + friendshipdate + "','" + message + "');"
+                            delete_query = "delete from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "') and LOWER(userid1)=LOWER('" + rows[counter][0] + "');"
+                            counter = counter + 1
+                        else:
+                            # gID userID role
+                            insert_query = "insert into groupMembership values ('" + rowsOfGroup[counterGroup][1] + "','" + rowsOfGroup[counterGroup][0] + "','Member');"
+                            delete_query = "delete from pendingGroupMembers where LOWER(userid)=LOWER('" + rowsOfGroup[counterGroup][0] + "') and LOWER(gID)=LOWER('" + rowsOfGroup[counterGroup][1] + "');"
+                            counterGroup = counterGroup + 1
+                        cur.execute(insert_query)
+                        cur.execute(delete_query)
+                        conn.commit()
+
+
+
+
+
+                else:
+                    # after this move pendingfriends to friends and pendinggroupmemebrs to groupmembers
+                    # friends: userid1 userid2 friendshipdate message (userid2 is accepting request from userid1)
+                    # delete from pendingFriends where userid1= and userid2=
+                    counter = 0
+                    print(confirmNumbers)
+                    for tuple in range(x):
+                        print(x)
+                        if str(counter) in confirmNumbers:
+                            friendshipdate = time.strftime('%Y-%m-%d')
+                            message = currentUser + " has accepted your friend request."
+                            # print(str(x) + " confirmed and the info for that is: " + rows[counter][0] + " " + rows[counter][1])
+                            if counter < len(rows):
+                                insert_query = "insert into friends values ('" + rows[counter][0] + "','" + currentUser + "','" + friendshipdate + "','" + message + "');"
+                                # counter = counter + 1
+                            else:
+                                # gID userID role
+                                insert_query = "insert into groupMembership values ('" + rowsOfGroup[counter-len(rows)][1] + "','" + rowsOfGroup[counter-len(rows)][0] + "','Member');"
+                                # counter = counter + 1
+
+                            cur.execute(insert_query)
+
+
+                        if counter < len(rows):
+                            delete_query = "delete from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "') and LOWER(userid1)=LOWER('" + rows[counter][0] + "');"
+                            # counter = counter + 1
+                        else:
+                            delete_query = "delete from pendingGroupMembers where LOWER(userid)=LOWER('" + rowsOfGroup[counter-len(rows)][0] + "') and LOWER(gID)=LOWER('" + rowsOfGroup[counter-len(rows)][1] + "');"
+                            # counterGroup = counterGroup + 1
+
+                        cur.execute(delete_query)
+                        conn.commit()
+                        counter = counter + 1
+
+
+    elif query[0] == 'displayFriends': #browse user's friends AND their friends
+        if len(query) != 1:
+            print("Please enter only the command name \"displayFriends\" to see your friends")
+        else:
+            if currentUser is None or currentUser == '':
+                print("Please login in first using the \"login\" command")
+            else:
+                search_query = "select * from friends where LOWER(userid1)=LOWER('" + currentUser + "') or LOWER(userid2)=LOWER('" + currentUser + "');"
+                cur.execute(search_query)
+                rows = cur.fetchall()
+                print("~~~~~Friends and Friends of Friends~~~~~\n") #display friends names and their userIDs
+                for row in rows:
+                    if row[0] == currentUser:
+                        search_query = "select * from profile where LOWER(userid)=LOWER('" + row[1] + "');"
+                        cur.execute(search_query)
+                        profileRows = cur.fetchall()
+                        for newr in profileRows:
+                            print("userID: " + newr[0] + " Name: " + newr[1] + " " + newr[2])
+
+                            #now print the friends of this particular friend
+                            search_query = "select * from friends where LOWER(userid1)=LOWER('" + newr[0] + "') or LOWER(userid2)=LOWER('" + newr[0] + "');"
+                            cur.execute(search_query)
+                            friendsOfFriend = cur.fetchall()
+                            for rowFriends in friendsOfFriend:
+                                if rowFriends[0] == newr[0]:
+                                    search_query = "select * from profile where LOWER(userid)=LOWER('" + rowFriends[1] + "');"
+                                    cur.execute(search_query)
+                                    profileRows = cur.fetchall()
+                                    for rowfromFriendsFriendProfile in profileRows:
+                                        # print(rowfromFriendsFriendProfile)
+                                        print("\tuserID: " + rowfromFriendsFriendProfile[0] + " Name: " + rowfromFriendsFriendProfile[1] + " " + rowfromFriendsFriendProfile[2])
+                                    # print(row[1])
+                                else:
+                                    search_query = "select * from profile where LOWER(userid)=LOWER('" + rowFriends[0] + "');"
+                                    cur.execute(search_query)
+                                    profileRows = cur.fetchall()
+                                    for rowfromFriendsFriendProfile in profileRows:
+                                        # print(rowfromFriendsFriendProfile)
+                                        print("\tuserID: " + rowfromFriendsFriendProfile[0] + " Name: " + rowfromFriendsFriendProfile[1] + " " + rowfromFriendsFriendProfile[2])
+
+
+
+                    else:
+                        search_query = "select * from profile where LOWER(userid)=LOWER('" + row[0] + "');"
+                        cur.execute(search_query)
+                        profileRows = cur.fetchall()
+                        for newr in profileRows:
+                            print("userID: " + newr[0] + " Name: " + newr[1] + " " + newr[2])
+
+                            #now print the friends of this particular friend
+                            search_query = "select * from friends where LOWER(userid1)=LOWER('" + newr[0] + "') or LOWER(userid2)=LOWER('" + newr[0] + "');"
+                            cur.execute(search_query)
+                            friendsOfFriend = cur.fetchall()
+                            # print()
+                            for rowFriends in friendsOfFriend:
+                                # print("row 0: " + rowFriends[0] + " newr[0]: " + newr[0])
+                                if rowFriends[0] == newr[0]:
+                                    search_query = "select * from profile where LOWER(userid)=LOWER('" + rowFriends[1] + "');"
+                                    cur.execute(search_query)
+                                    profileRows = cur.fetchall()
+                                    for rowfromFriendsFriendProfile in profileRows:
+                                        # print(rowfromFriendsFriendProfile)
+                                        print("\tuserID: " + rowfromFriendsFriendProfile[0] + " Name: " + rowfromFriendsFriendProfile[1] + " " + rowfromFriendsFriendProfile[2])
+                                    # print(rowFriends[1])
+                                else:
+                                    search_query = "select * from profile where LOWER(userid)=LOWER('" + rowFriends[0] + "');"
+                                    cur.execute(search_query)
+                                    profileRows = cur.fetchall()
+                                    for rowFromFriendsFriendProfile in profileRows:
+                                        # print(rowFromFriendsFriendProfile)
+                                        print("\tuserID: " + rowFromFriendsFriendProfile[0] + " Name: " + rowFromFriendsFriendProfile[1] + " " + rowFromFriendsFriendProfile[2])
+                                # print(rowFriends[1])
+                while(1):
+                    print("\n")
+                    #retrieve entire profile by entering their userID or exit browsing with 0
+                    displayThisProfile = input("Type the userID of the profile you wish to view\n[Simply enter 0 to go back to the main menu]:")
+                    if displayThisProfile == '0':
+                        break;
+                    else:
+                        try:
+                            search_query = "select * from profile where LOWER(userid)=LOWER('" + displayThisProfile + "');"
+                            cur.execute(search_query)
+                            profileRows = cur.fetchall()
+                            print("\n")
+                            for newr in profileRows:
+                                print(newr)
+                        except Exception as e:
+                            print("That friend's profile could not be found. Please try again.")
 
 
     elif query[0] == 'createGroup': # provide a name, description, and membership limit
@@ -162,7 +323,7 @@ def f(query):
             rows = cur.fetchall()
             for row in rows:
                 print(" FULL NAME: " + row[0] + " " + row[1])
-            
+
             search_query = "select name from groups where LOWER(gID) LIKE LOWER('%" + gID + "%');"
             cur.execute(search_query)
             rows = cur.fetchall()
@@ -203,7 +364,7 @@ try:
         # exit/quit the program
         if commandSplit[0] == 'exit' or commandSplit[0] == 'quit':
             break
-        
+
         f(commandSplit)
 
 
