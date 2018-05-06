@@ -56,7 +56,7 @@ create table pendingGroupMembers (
 );
 
 create table messages (
-	msgID       varchar(40),
+	msgID       varchar(80),
 	fromUserID  varchar(20),
 	toUserID    varchar(20) default NULL,
 	toGroupID   varchar(20) default NULL,
@@ -69,7 +69,7 @@ create table messages (
 );
 
 create table messageRecipient (
-	msgID     varchar(20),
+	msgID     varchar(80),
 	toUserID  varchar(20),
 	foreign key(msgID) references messages,
 	foreign key(toUserID) references profile,
