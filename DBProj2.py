@@ -18,11 +18,11 @@ def f(query):
             dob = query[5]
             userid = first_name + dob.split('/')[2]
             lastlogin = time.strftime('%Y-%m-%d %H:%M:%S')
-            print("User created!")
             insert_query = "insert into profile values ('" + userid + "','" + first_name + "','" + last_name + "','" + email + "','" + password + "','" + dob + "','" + lastlogin + "');"
             try:
                 cur.execute(insert_query)
                 conn.commit()
+                print("Created user with ID " + userid + "!")
             except:
                 print("Sorry, there was an error. Please try again.");
 
@@ -156,10 +156,6 @@ def f(query):
                         cur.execute(delete_query)
                         conn.commit()
 
-
-
-
-
                 elif len(confirmNumbers) == 1 and confirmNumbers[0] == 'all':
                     print("Accept all")
                     counter = 0
@@ -182,10 +178,6 @@ def f(query):
                         cur.execute(delete_query)
                         conn.commit()
 
-
-
-
-
                 else:
                     # after this move pendingfriends to friends and pendinggroupmemebrs to groupmembers
                     # friends: userid1 userid2 friendshipdate message (userid2 is accepting request from userid1)
@@ -207,7 +199,6 @@ def f(query):
                                 # counter = counter + 1
 
                             cur.execute(insert_query)
-
 
                         if counter < len(rows):
                             delete_query = "delete from pendingfriends where LOWER(userid2)=LOWER('" + currentUser + "') and LOWER(userid1)=LOWER('" + rows[counter][0] + "');"
@@ -322,10 +313,15 @@ def f(query):
             name = query[1]
             description = query[2]
             maxUsers = query[3]
-            gID = name.split(' ')[0] + random.randint(2000, 2018)
-            insert_query = "insert into groups values ('" + gID + "','" + name + "','" + description + "','" + maxUsers + "');"
+            gID = name.split(' ')[0] + str(random.randint(2000, 2018))
+            insert_query = "insert into groups values ('" + gID + "','" + name + "','" + str(maxUsers) + "','" + description + "');"
             cur.execute(insert_query)
             conn.commit()
+
+            insert_query = "insert into groupMembership values('" + gID + "', '" + currentUser + "', 'manager');"
+            cur.execute(insert_query)
+            conn.commit()
+            print("Created group with ID " + gID + ". Manager: " + currentUser + ".")
     
     
     elif query[0] == 'initiateAddingGroup': # provide a user ID and a group name
@@ -683,7 +679,7 @@ try:
     currentUser = ''
     runProgram = True
 
-    while(1):
+    while(runProgram):
 
 
 
