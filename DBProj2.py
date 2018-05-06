@@ -6,6 +6,7 @@ import random
 
 def f(query):
     global currentUser
+
     if query[0] == 'createUser':     #first, last name, email address, password, and date of birth,
         if len(query) != 6:
             print("Please enter a First Name, Last Name, email, password, and DOB to create a user")
@@ -19,8 +20,13 @@ def f(query):
             lastlogin = time.strftime('%Y-%m-%d %H:%M:%S')
             print("User created!")
             insert_query = "insert into profile values ('" + userid + "','" + first_name + "','" + last_name + "','" + email + "','" + password + "','" + dob + "','" + lastlogin + "');"
-            cur.execute(insert_query)
-            conn.commit()
+            try:
+                cur.execute(insert_query)
+                conn.commit()
+            except:
+                print("Sorry, there was an error. Please try again.");
+
+
     elif query[0] == 'login': #userID and password login else make an error message
         if len(query) != 3:
             print("Please enter your userID and password")
@@ -32,17 +38,22 @@ def f(query):
                 password = query[2]
                 # email = query[3]
                 search_query = "select userid, password from profile where LOWER(userid)=LOWER('" + userID + "');"
-                cur.execute(search_query)
-                rows = cur.fetchall()
-                if rows[0][1] == password:
-                    print("Correct userID and password! Logged in!")
-                    currentUser = rows[0][0]
-                else:
-                    print("User name or password incorrect.")
+                try:
+                    cur.execute(search_query)
+                    rows = cur.fetchall()
+                    if rows[0][1] == password:
+                        print("Correct userID and password! Logged in!")
+                        currentUser = rows[0][0]
+                    else:
+                        print("User name or password incorrect.")
+                except:
+                    print("Sorry something went wrong. Please try again.")
             # print(rows[0][1])
             # for row in rows:
             #     print(row)
             # return
+
+
     elif query[0] == 'searchForUser': #searchForUser userid fname lname email for substring
         if len(query) != 2:
             print("Please enter the substring you want to search")
@@ -50,10 +61,13 @@ def f(query):
             substring = query[1]
 
             search_query = "select userid, fname, lname, email from profile where LOWER(userid) LIKE LOWER('%" + substring + "%') OR LOWER(email) LIKE LOWER('%"+ substring +"%') OR LOWER(fname) LIKE LOWER('%" + substring + "%') OR LOWER(lname) LIKE LOWER('%" + substring + "%');"
-            cur.execute(search_query)
-            rows = cur.fetchall()
-            for row in rows:
-                print("USERID: " + row[0] + " FULL NAME: " + row[1] + " " + row[2] + " EMAIL: " + row[3])
+            try:
+                cur.execute(search_query)
+                rows = cur.fetchall()
+                for row in rows:
+                    print("USERID: " + row[0] + " FULL NAME: " + row[1] + " " + row[2] + " EMAIL: " + row[3])
+            except:
+                print("sorry something went wrong. Please try again.")
             # if rows[0][1] == password:
             #     print("Correct userID and password! Logged in!")
             #     currentUser = rows[0][0]
@@ -63,6 +77,8 @@ def f(query):
             # for row in rows:
             #     print(row)
             # return
+
+
     elif query[0] == 'initiateFriendship': #initiateFriendship userID
         if len(query) != 2:
             print("Please enter the userID of the friend you would like to add")
@@ -72,14 +88,13 @@ def f(query):
             else:
                 userid = query[1]
 
-
                 search_query = "select fname, lname from profile where LOWER(userid) LIKE LOWER('%" + userid + "%');"
                 cur.execute(search_query)
                 rows = cur.fetchall()
                 for row in rows:
                     print(" FULL NAME: " + row[0] + " " + row[1])
 
-                message = raw_input("What would you like to say in your request?\n[If you want a default message simply press enter to continue]\n: ")
+                message = input("What would you like to say in your request?\n[If you want a default message simply press enter to continue]\n: ")
                 if message is None or message == '':
                     message = 'NULL'
 
@@ -92,7 +107,6 @@ def f(query):
                 except Exception as e:
                     print("Request not sent. Error has occurred, please try again.")
                     print(e)
-
 
 
     elif query[0] == 'confirmFriendship':
@@ -123,7 +137,7 @@ def f(query):
                     x = x + 1
 
                 # prompt to have # of requests confirmed or denied and any not selected are declined and removed from pendingfriends pendinggroupmemebers
-                confirmNumbers = raw_input("Type the numbers of the requests you wish to accept\n[Press Enter to Deny All or type \"all\" to accept all]: ")
+                confirmNumbers = input("Type the numbers of the requests you wish to accept\n[Press Enter to Deny All or type \"all\" to accept all]: ")
                 confirmNumbers = confirmNumbers.split(' ')
                 # give option to confirm or deny all
                 if len(confirmNumbers) == 1 and confirmNumbers[0] == '':
@@ -283,8 +297,7 @@ def f(query):
                 while(1):
                     print("\n")
                     #retrieve entire profile by entering their userID or exit browsing with 0
-
-                    displayThisProfile = raw_input("Type the userID of the profile you wish to view\n[Simply enter 0 to go back to the main menu]:")
+                    displayThisProfile = input("Type the userID of the profile you wish to view\n[Simply enter 0 to go back to the main menu]:")
                     if displayThisProfile == '0':
                         break;
                     else:
@@ -315,7 +328,7 @@ def f(query):
             conn.commit()
     elif query[0] == 'initiateAddingGroup': # provide a user ID and a group name
         if len(query) != 3:
-            print("Please enter your user ID and the group you wishes to join")
+            print("Please enter your user ID and the group you wish to join")
         else:
             userid = query[1]
             gID = query[2]
@@ -332,7 +345,7 @@ def f(query):
             for row in rows:
                 print("GROUP NAME: " + row[0])
 
-            message = raw_input("What would you like to say in your request?\n[Press enter to continue with default message]\n: ")
+            message = input("What would you like to say in your request?\n[Press enter to continue with default message]\n: ")
             if message is None or message == '':
                 message = 'NULL'
 
@@ -510,6 +523,7 @@ def f(query):
         print('Please use a proper command')
 
 
+# connect to the database and enter while loop
 try:
     # conn = psycopg2.connect("dbname='Nick_Peter_Project2' user='postgres' ' password='MyPassword'");
     conn = psycopg2.connect(dbname="Nick_Peter_Project2", user="njw275", password="MyPassword", host="m-dclap-p302-csd.abudhabi.nyu.edu")
@@ -518,7 +532,7 @@ try:
     currentUser = ''
     runProgram = True
 
-    while(runProgram):
+    while(1):
 
 
 
@@ -527,7 +541,7 @@ try:
         command = raw_input("socnyuad> ")
         commandSplit = command.split(" ")
 
-        # to exit/quit the program
+        # exit/quit the program
         if commandSplit[0] == 'exit' or commandSplit[0] == 'quit':
             break
 
