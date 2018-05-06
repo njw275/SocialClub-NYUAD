@@ -394,7 +394,7 @@ def f(query):
                 dateSent = time.strftime('%Y-%m-%d %H:%M:%S')
                 groupIDNULL = "NULL"
                 # prompt for message
-                message = raw_input("What would you like your message to say?\n")
+                message = input("What would you like your message to say?\n")
                 # send from currentUser to userid in message
                 # msgID fromUserID toUserID toGroupID message datesent
                 msgID = currentUser + toUserID + str(random.randint(100,999))
@@ -423,7 +423,7 @@ def f(query):
                 #     print(row)
                 if len(check) == 1:
                     #prompt for messages
-                    message = raw_input("What would you like your message to say?\n")
+                    message = input("What would you like your message to say?\n")
 
                     dateSent = time.strftime('%Y-%m-%d %H:%M:%S')
                     #get all users in the group
@@ -689,7 +689,7 @@ try:
 
 
 
-        command = raw_input("socnyuad> ")
+        command = input("socnyuad> ")
         commandSplit = command.split(" ")
 
         # exit/quit the program
