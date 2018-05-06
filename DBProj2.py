@@ -17,7 +17,6 @@ def f(query):
             dob = query[5]
             userid = first_name + dob.split('/')[2]
             lastlogin = time.strftime('%Y-%m-%d %H:%M:%S')
-            print("Your userid is: " )
             print("User created!")
             insert_query = "insert into profile values ('" + userid + "','" + first_name + "','" + last_name + "','" + email + "','" + password + "','" + dob + "','" + lastlogin + "');"
             cur.execute(insert_query)
@@ -26,17 +25,20 @@ def f(query):
         if len(query) != 3:
             print("Please enter your userID and password")
         else:
-            userID = query[1]
-            password = query[2]
-            # email = query[3]
-            search_query = "select userid, password from profile where LOWER(userid)=LOWER('" + userID + "');"
-            cur.execute(search_query)
-            rows = cur.fetchall()
-            if rows[0][1] == password:
-                print("Correct userID and password! Logged in!")
-                currentUser = rows[0][0]
+            if currentUser != '':
+                print("You are already logged in. Please logout before signing in as someone else.")
             else:
-                print("User name or password incorrect.")
+                userID = query[1]
+                password = query[2]
+                # email = query[3]
+                search_query = "select userid, password from profile where LOWER(userid)=LOWER('" + userID + "');"
+                cur.execute(search_query)
+                rows = cur.fetchall()
+                if rows[0][1] == password:
+                    print("Correct userID and password! Logged in!")
+                    currentUser = rows[0][0]
+                else:
+                    print("User name or password incorrect.")
             # print(rows[0][1])
             # for row in rows:
             #     print(row)
@@ -358,6 +360,116 @@ def f(query):
 
                 global runProgram
                 runProgram = False
+
+
+
+
+
+
+    elif query[0] == 'sendMessage2User': # sendMessage2User userid(tosendto)
+        if len(query) != 2:
+            print("Please enter the userID of the user you would like to message")
+        else:
+            if currentUser is None or currentUser == '':
+                print("Please login in first using the \"login\" command")
+            else:
+                toUserID = query[1]
+                dateSent = time.strftime('%Y-%m-%d %H:%M:%S')
+                groupIDNULL = "NULL"
+                # prompt for message
+                message = raw_input("What would you like your message to say?\n")
+                # send from currentUser to userid in message
+                # msgID fromUserID toUserID toGroupID message datesent
+                msgID = currentUser + toUserID + str(random.randint(100,999))
+                insert_query = "insert into messages values('" + msgID + "','" + currentUser + "','" + toUserID + "'," + groupIDNULL + ",'" + message + "','" + str(dateSent) + "')"
+                #user shown whether message was sent or error
+                try:
+                    cur.execute(insert_query)
+                    conn.commit()
+                    print("Your message sent successfully!")
+                except Exception as e:
+                    print("Sorry, your message did not send. Please try again.")
+
+    elif query[0] == 'sendMessage2Group': #sendMessage2Group groupID
+        if len(query) != 2:
+            print("Please enter the groupID of the group you wish to message")
+        else:
+            if currentUser is None or currentUser == '':
+                print("Please login in first using the \"login\" command")
+            else:
+                gID = query[1]
+                # see if user is part of group
+                search_query = "select * from groupmembership where LOWER(userid)=LOWER('" + currentUser + "') and gid='" + gID + "'";
+                cur.execute(search_query)
+                check = cur.fetchall()
+                # for row in check:
+                #     print(row)
+                if len(check) == 1:
+                    #prompt for messages
+                    message = raw_input("What would you like your message to say?\n")
+
+                    dateSent = time.strftime('%Y-%m-%d %H:%M:%S')
+                    #get all users in the group
+                    search_group_query = "select * from groupmembership where gid='" + gID + "'";
+                    cur.execute(search_group_query)
+                    listOfUsers = cur.fetchall()
+                    for user in listOfUsers:
+                        msgID = currentUser + gID + str(random.randint(0,999999))
+                        #user[1] is the userID - send to them
+                        # send to every memeber in the group
+                        # send to users in messages and messageRecipient (trigger handles it)
+                        insert_query = "insert into messages values('" + msgID + "','" + currentUser + "','" + user[1] + "','" + gID + "','" + message + "','" + str(dateSent) + "')"
+                        #user shown whether message was sent or error
+                        try:
+                            cur.execute(insert_query)
+                            conn.commit()
+                            #show success or failure
+                            print("Your message sent successfully!")
+                        except Exception as e:
+                            print("Sorry, your message did not send. Please try again.")
+                        # print(user[1])
+                else:
+                    print("You can only send messages to groups that you belong to.")
+
+    elif query[0] == 'displayMessages':
+        if len(query) != 1:
+            print("Please enter only the command name \"displayMessages\" to see your messages")
+        else:
+            if currentUser is None or currentUser == '':
+                print("Please login in first using the \"login\" command")
+            else:
+                #display message to currentUser (formatted)
+                search_query = "select * from messages where LOWER(touserid)=LOWER('" + currentUser + "')";
+                cur.execute(search_query)
+                myMessages = cur.fetchall()
+                for msg in myMessages:
+                    if msg[1] != currentUser:
+                        if msg[3] is None:
+                            print("~~MESSAGE~~\nFrom: " + msg[1] + "\nDate Sent: " + str(msg[5]) + "\nMessage: " + msg[4] + "\n")
+                        else:
+                            print("~~MESSAGE~~\nFrom: " + msg[1] + "\nDate Sent: " + str(msg[5]) + "\nIn Group: " + msg[3] +"\nMessage: " + msg[4] + "\n")
+
+
+    elif query[0] == 'displayNewMessages': # displayNewMessages
+        if len(query) != 1:
+            print("Please enter only the command name \"displayNewMessages\" to see your messages")
+        else:
+            if currentUser is None or currentUser == '':
+                print("Please login in first using the \"login\" command")
+            else:
+                #display message to currentUser (formatted)
+                #show messages only since last login of currentUser
+                search_query = "select m.msgID, m.fromUserID, m.toUserID, m.toGroupID, m.message, m.dateSent from messages m, profile p where LOWER(m.touserid)=LOWER('" + currentUser + "') and m.dateSent>p.lastlogin and LOWER(p.userid)=LOWER('" + currentUser + "')";
+                cur.execute(search_query)
+                myNewMessages = cur.fetchall()
+                for nmsg in myNewMessages:
+                    if nmsg[1] != currentUser:
+                        if nmsg[3] is None:
+                            print("~~MESSAGE~~\nFrom: " + nmsg[1] + "\nDate Sent: " + str(nmsg[5]) + "\nMessage: " + nmsg[4] + "\n")
+                        else:
+                            print("~~MESSAGE~~\nFrom: " + nmsg[1] + "\nDate Sent: " + str(nmsg[5]) + "\nIn Group: " + nmsg[3] +"\nMessage: " + nmsg[4] + "\n")
+
+
     elif query[0] == 'topUsers': #topUsers k x
         if len(query) != 3:
             print("Please enter the number of users (k) and the amount of days to check (x):\ntopUsers k x")
@@ -365,7 +477,34 @@ def f(query):
             if currentUser is None or currentUser == '':
                 print("Please login in first using the \"login\" command")
             else:
-                print("topUsers")
+                numUsers = query[1]
+                numDays = "(datesent - INTERVAL '" + query[2] + " day')"
+                search_query = "with d as ( (select touserid, COUNT(msgid) as msgCount from messages where datesent > " + numDays + " and touserid != '' group by touserid) \
+                                    union all \
+                                    (select fromuserid, COUNT(msgid) as msgCount from messages where datesent > " + numDays + " group by fromuserid) \
+                                ) \
+                                select touserid, SUM(msgCount) as totalCount from d group by touserid order by totalcount desc limit " + numUsers
+                cur.execute(search_query)
+                topUsersFound = cur.fetchall()
+                topUserCounter = 1
+                for user in topUsersFound:
+                    print(str(topUserCounter) + ". " + user[0])
+                    topUserCounter = topUserCounter + 1
+
+    elif query[0] == 'dropUser': #dropUser userid
+        if len(query) != 2:
+            print("Please enter the userID of the user you wish to drop from SocNYUAD")
+        else:
+            if currentUser is None or currentUser == '':
+                print("Please login in first using the \"login\" command")
+            else:
+                userID = query[1]
+                delete_query = "delete from profile where LOWER(userid)=LOWER('" + userID + "')"
+                cur.execute(delete_query)
+                conn.commit();
+                # delete from all groups (trigger)
+                # Note: messages are "owned" by both send and recipient so they require attention
+                # a message should be deleted only when both sender and ALL recipients have been removed
 
     else:
         print('Please use a proper command')
@@ -382,7 +521,8 @@ try:
     while(runProgram):
 
 
-        # display top-k users who have sent or received highest number of messages during last x days
+
+
 
         command = raw_input("socnyuad> ")
         commandSplit = command.split(" ")
