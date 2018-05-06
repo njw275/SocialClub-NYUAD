@@ -487,6 +487,153 @@ def f(query):
                             print("~~MESSAGE~~\nFrom: " + nmsg[1] + "\nDate Sent: " + str(nmsg[5]) + "\nIn Group: " + nmsg[3] +"\nMessage: " + nmsg[4] + "\n")
 
 
+    elif query[0] == '3Degrees': # provide two user IDs
+        if len(query) != 3:
+            print("Please enter command with 2 user IDs.")
+        else:
+            if currentUser is None or currentUser == '':
+                print("Please login in first using the \"login\" command")
+            else:
+                # check if userA is in any of userB's friends up to 3 degrees
+                userA = query[1].upper()
+                userB = query[2].upper()
+                degree = 0
+                found = False
+
+                search_query = "select * from friends where LOWER(userid1)=LOWER('" + userB + "') or LOWER(userid2)=LOWER('" + userB + "');"
+                cur.execute(search_query)
+                rows_1 = cur.fetchall()
+
+                # scan the 1st degree
+                print("======================== Scanning 1st Degree ========================")
+                for row_1 in rows_1:
+                    if row_1[0].upper() == userB:
+                        search_query = "select * from profile where LOWER(userid)=LOWER('" + row_1[1] + "');"
+                    else:
+                        search_query = "select * from profile where LOWER(userid)=LOWER('" + row_1[0] + "');"
+                    
+                    cur.execute(search_query)
+                    profileRows_1 = cur.fetchall()
+                    for prow_1 in profileRows_1:
+                        print("userID: " + prow_1[0] + " Name: " + prow_1[1] + " " + prow_1[2])
+
+                        if prow_1[0].upper() == userA: # userA found as a friend of userB
+                            print("Found " + userA + " as a friend of " + row_1[0].upper() + ". Returning " + str(degree+1))
+                            degree += 1
+                            found = True
+                            break
+                    else:
+                        continue
+                    break
+                    
+                # scan the 2nd degree
+                if not found:
+                    print("======================== Scanning 2nd Degree ========================")
+                    for row_1 in rows_1:
+                        # print(row[1], userB.upper())
+                        if row_1[0].upper() == userB:
+                            search_query = "select * from profile where LOWER(userid)=LOWER('" + row_1[1] + "');"
+                        else:
+                            search_query = "select * from profile where LOWER(userid)=LOWER('" + row_1[0] + "');"
+                        
+                        cur.execute(search_query)
+                        profileRows_1 = cur.fetchall()
+                        for prow_1 in profileRows_1:
+                            search_query = "select * from friends where LOWER(userid1)=LOWER('" + prow_1[0] + "') or LOWER(userid2)=LOWER('" + prow_1[0] + "');"
+                            cur.execute(search_query)
+                            rows_2 = cur.fetchall()
+                            for row_2 in rows_2:
+                                if row_2[0] == prow_1[0]:
+                                    search_query = "select * from profile where LOWER(userid)=LOWER('" + row_2[1] + "');"
+                                else:
+                                    search_query = "select * from profile where LOWER(userid)=LOWER('" + row_2[0] + "');"
+                                
+                                cur.execute(search_query)
+                                profileRows_2 = cur.fetchall()
+                                for prow_2 in profileRows_2:
+                                    print("userID: " + prow_2[0] + " Name: " + prow_2[1] + " " + prow_2[2])
+                                    if prow_2[0].upper() == userA:
+                                        print("Found " + userA + " as a friend of " + row_2[0].upper() + ". Returning " + str(degree+2))
+                                        degree += 2
+                                        found = True
+                                        break
+                                else:
+                                    continue
+                                break
+                            else:
+                                continue
+                            break
+                        else:
+                            continue
+                        break
+                
+                # scan the 3rd degree
+                if not found:
+                    print("======================== Scanning 3rd Degree ========================")
+                    for row_1 in rows_1:
+                        # print(row[1], userB.upper())
+                        if row_1[0].upper() == userB:
+                            search_query = "select * from profile where LOWER(userid)=LOWER('" + row_1[1] + "');"
+                        else:
+                            search_query = "select * from profile where LOWER(userid)=LOWER('" + row_1[0] + "');"
+                        
+                        cur.execute(search_query)
+                        profileRows_1 = cur.fetchall()
+                        for prow_1 in profileRows_1:
+                            search_query = "select * from friends where LOWER(userid1)=LOWER('" + prow_1[0] + "') or LOWER(userid2)=LOWER('" + prow_1[0] + "');"
+                            cur.execute(search_query)
+                            rows_2 = cur.fetchall()
+                            for row_2 in rows_2:
+                                if row_2[0] == prow_1[0]:
+                                    search_query = "select * from profile where LOWER(userid)=LOWER('" + row_2[1] + "');"
+                                else:
+                                    search_query = "select * from profile where LOWER(userid)=LOWER('" + row_2[0] + "');"
+                                
+                                cur.execute(search_query)
+                                profileRows_2 = cur.fetchall()
+                                for prow_2 in profileRows_2:
+                                    search_query = "select * from friends where LOWER(userid1)=LOWER('" + prow_2[0] + "') or LOWER(userid2)=LOWER('" + prow_2[0] + "');"
+                                    cur.execute(search_query)
+                                    rows_3 = cur.fetchall()
+                                    for row_3 in rows_3:
+                                        if row_3[0] == prow_2[0]:
+                                            search_query = "select * from profile where LOWER(userid)=LOWER('" + row_3[1] + "');"
+                                        else:
+                                            search_query = "select * from profile where LOWER(userid)=LOWER('" + row_3[0] + "');"
+                                        
+                                        cur.execute(search_query)
+                                        profileRows_3 = cur.fetchall()
+                                        for prow_3 in profileRows_3:
+                                            print("userID: " + prow_3[0] + " Name: " + prow_3[1] + " " + prow_3[2])
+                                            if prow_3[0].upper() == userA:
+                                                print("Found " + userA + " as a friend of " + row_3[0].upper() + ". Returning " + str(degree+3))
+                                                degree += 3
+                                                found = True
+                                                break
+                                        else:
+                                            continue
+                                        break
+                                    else:
+                                        continue
+                                    break
+                                else:
+                                    continue
+                                break
+                            else:
+                                continue
+                            break
+                        else:
+                            continue
+                        break
+
+                # print the results
+                print(degree)
+                if degree < 1 or degree > 3:
+                    print(userA + " is not within 3 degrees of " + userB + ".")
+                else:
+                    print(userA + " is a " + str(degree) + "-Degree friend of " + userB + "!!!!")
+
+
     elif query[0] == 'topUsers': #topUsers k x
         if len(query) != 3:
             print("Please enter the number of users (k) and the amount of days to check (x):\ntopUsers k x")
